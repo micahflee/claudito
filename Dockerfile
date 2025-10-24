@@ -7,6 +7,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
+# Security labels
+LABEL security.sandbox="true" \
+      security.user="unprivileged:claudito:1000" \
+      security.capabilities="restricted" \
+      security.sudo="enabled" \
+      org.opencontainers.image.description="Sandboxed Claude Code environment with full development tooling"
+
 # Install core dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -160,10 +167,9 @@ RUN if id 1000 2>/dev/null; then userdel -r $(id -un 1000); fi && \
     useradd -m -s /bin/bash -u 1000 claudito && \
     echo "claudito ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Make sure shared directories are accessible
+# Make sure shared directories are accessible by claudito user
 RUN mkdir -p /go/bin && \
-    chmod -R 777 /go && \
-    chmod -R 777 /usr/local/cargo /usr/local/rustup
+    chown -R claudito:claudito /go /usr/local/cargo /usr/local/rustup
 
 # Switch to unprivileged user
 USER claudito

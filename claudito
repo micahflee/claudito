@@ -58,11 +58,18 @@ docker pull "$IMAGE_NAME"
 # Get the current directory
 CURRENT_DIR="$(pwd)"
 
-# Run the container
+# Run the container with security restrictions
 info "Starting Claude Code in container..."
 exec docker run \
     --rm \
     -it \
+    --security-opt=no-new-privileges \
+    --cap-drop=ALL \
+    --cap-add=CHOWN \
+    --cap-add=SETUID \
+    --cap-add=SETGID \
+    --cap-add=DAC_OVERRIDE \
+    --cap-add=NET_BIND_SERVICE \
     -v "$CURRENT_DIR:$WORK_DIR" \
     -v "$CONFIG_DIR:$CONTAINER_CONFIG_DIR" \
     -w "$WORK_DIR" \
