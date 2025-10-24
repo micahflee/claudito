@@ -8,8 +8,30 @@ set -e
 # Configuration
 IMAGE_NAME="micahflee/claudito:latest"
 WORK_DIR="/src"
-CONFIG_DIR="$HOME/.config/@anthropic-ai/claude-code"
 CONTAINER_CONFIG_DIR="/home/claudito/.config/@anthropic-ai/claude-code"
+
+# Detect platform and set config directory
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    CONFIG_DIR="$HOME/Library/Application Support/@anthropic-ai/claude-code"
+elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+    # Windows (Git Bash, Cygwin, or WSL)
+    if [ -n "$APPDATA" ]; then
+        # Native Windows path
+        CONFIG_DIR="$APPDATA/@anthropic-ai/claude-code"
+    else
+        # WSL - try Windows user directory
+        WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
+        if [ -n "$WIN_USER" ]; then
+            CONFIG_DIR="/mnt/c/Users/$WIN_USER/AppData/Roaming/@anthropic-ai/claude-code"
+        else
+            CONFIG_DIR="$HOME/.config/@anthropic-ai/claude-code"
+        fi
+    fi
+else
+    # Linux and others
+    CONFIG_DIR="$HOME/.config/@anthropic-ai/claude-code"
+fi
 
 # Colors for output
 RED='\033[0;31m'
