@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Claudito - Docker wrapper for Claude Code
+# https://github.com/micahflee/claudito
+
+set -e
+
+# Configuration
+IMAGE_NAME="micahflee/claudito:latest"
+WORK_DIR="/src"
+CONFIG_DIR="$HOME/.config/@anthropic-ai/claude-code"
+CONTAINER_CONFIG_DIR="/home/claudito/.config/@anthropic-ai/claude-code"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored messages
+info() {
+    echo -e "${GREEN}[claudito]${NC} $1"
+}
+
+warn() {
+    echo -e "${YELLOW}[claudito]${NC} $1"
+}
+
+error() {
+    echo -e "${RED}[claudito]${NC} $1" >&2
+}
+
+# Check if Docker is installed
+if ! command -v docker &> /dev/null; then
+    error "Docker is not installed or not in PATH"
+    error "Please install Docker: https://docs.docker.com/get-docker/"
+    exit 1
+fi
+
+# Check if Docker daemon is running
+if ! docker info &> /dev/null; then
+    error "Docker daemon is not running"
+    error "Please start Docker and try again"
+    exit 1
+fi
+
+# Check if config directory exists, create if not
+if [ ! -d "$CONFIG_DIR" ]; then
+    warn "Claude Code config directory not found at $CONFIG_DIR"
+    warn "Creating directory... You may need to authenticate Claude Code on first run"
+    mkdir -p "$CONFIG_DIR"
+fi
+
+# Pull latest image
+info "Pulling latest $IMAGE_NAME image..."
+docker pull "$IMAGE_NAME"
+
+# Get the current directory
+CURRENT_DIR="$(pwd)"
+
+# Run the container
+info "Starting Claude Code in container..."
+exec docker run \
+    --rm \
+    -it \
+    -v "$CURRENT_DIR:$WORK_DIR" \
+    -v "$CONFIG_DIR:$CONTAINER_CONFIG_DIR" \
+    -w "$WORK_DIR" \
+    "$IMAGE_NAME" \
+    "$@"

@@ -1,0 +1,23 @@
+# Git files
+.git
+.gitignore
+.github
+
+# Documentation
+README.md
+REQUIREMENTS.md
+LICENSE
+
+# Scripts (not needed in the image)
+claudito
+
+# Development files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE files
+.vscode
+.idea
+*.iml
