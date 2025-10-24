@@ -56,8 +56,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=registry,ref=micahflee/claudito:latest
-          cache-to: type=inline
+          cache-from: |
+            type=gha
+            type=registry,ref=micahflee/claudito:latest
+          cache-to: type=gha,mode=max
 
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v4
