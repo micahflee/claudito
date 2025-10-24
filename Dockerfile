@@ -7,9 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
-# Update system and install core dependencies
+# Install core dependencies
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y \
     build-essential \
     curl \
@@ -152,6 +151,9 @@ RUN apt-get update && \
     apt-get install -y sudo && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Upgrade all packages to latest versions
+RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create unprivileged user (remove any existing UID 1000 user first)
 RUN if id 1000 2>/dev/null; then userdel -r $(id -un 1000); fi && \
