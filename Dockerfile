@@ -153,8 +153,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Create unprivileged user
-RUN useradd -m -s /bin/bash -u 1000 claudito && \
+# Create unprivileged user (remove any existing UID 1000 user first)
+RUN if id 1000 2>/dev/null; then userdel -r $(id -un 1000); fi && \
+    useradd -m -s /bin/bash -u 1000 claudito && \
     echo "claudito ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Make sure shared directories are accessible
