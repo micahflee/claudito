@@ -29,7 +29,7 @@ The Dockerfile builds a minimal development environment with:
 
 The `claudito` script uses:
 1. **Working directory**: `$(pwd)` → `/src` in container (read-write bind mount)
-2. **Claudito config**: Docker named volume `claudito-config` → `/home/claudito/.config/@anthropic-ai/claude-code` (to persist authentication)
+2. **Claude Code data**: Docker named volume `claudito-config` → `/home/claudito/.claude` (to persist authentication, project state, and todos)
 
 Using a named volume for configuration ensures reliable persistence across all platforms (especially Docker Desktop) and avoids file synchronization issues with bind mounts.
 

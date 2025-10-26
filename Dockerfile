@@ -96,7 +96,8 @@ RUN if id 1000 2>/dev/null; then userdel -r $(id -un 1000); fi && \
     echo "claudito ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Make sure shared directories are accessible by claudito user
-RUN mkdir -p /home/claudito && \
+# Pre-create .claude directory so volume mount has correct permissions
+RUN mkdir -p /home/claudito/.claude && \
     chown -R claudito:claudito /home/claudito
 
 # Copy entrypoint script

@@ -8,8 +8,8 @@ set -e
 # Configuration
 IMAGE_NAME="micahflee/claudito:latest"
 WORK_DIR="/src"
-CONTAINER_CONFIG_DIR="/home/claudito/.config/@anthropic-ai/claude-code"
-VOLUME_NAME="claudito-config"
+CONTAINER_HOME_DIR="/home/claudito"
+VOLUME_NAME="claudito-home"
 
 # Colors for output
 RED='\033[0;31m'
@@ -64,7 +64,7 @@ exec docker run \
     --cap-add=DAC_OVERRIDE \
     --cap-add=NET_BIND_SERVICE \
     -v "$CURRENT_DIR:$WORK_DIR" \
-    -v "$VOLUME_NAME:$CONTAINER_CONFIG_DIR" \
+    -v "$VOLUME_NAME:$CONTAINER_HOME_DIR" \
     -w "$WORK_DIR" \
     "$IMAGE_NAME" \
     "$@"
