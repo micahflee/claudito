@@ -9,10 +9,10 @@ ENV LANG=C.UTF-8 \
 
 # Security labels
 LABEL security.sandbox="true" \
-      security.user="unprivileged:claudito:1000" \
-      security.capabilities="restricted" \
-      security.sudo="enabled" \
-      org.opencontainers.image.description="Sandboxed Claude Code environment with full development tooling"
+    security.user="unprivileged:claudito:1000" \
+    security.capabilities="restricted" \
+    security.sudo="enabled" \
+    org.opencontainers.image.description="Sandboxed Claude Code environment with full development tooling"
 
 # Install core dependencies
 RUN apt-get update && \
@@ -31,14 +31,6 @@ RUN apt-get update && \
     git \
     git-lfs \
     && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install ripgrep (architecture-aware)
-RUN ARCH=$(dpkg --print-architecture) && \
-    curl -LO https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/ripgrep_14.1.1-1_${ARCH}.deb && \
-    dpkg -i ripgrep_14.1.1-1_${ARCH}.deb || apt-get install -f -y && \
-    rm ripgrep_14.1.1-1_${ARCH}.deb && \
-    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python 3 and development tools
