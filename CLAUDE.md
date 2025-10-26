@@ -14,12 +14,14 @@ Claudito is a Docker container that runs Claude Code in a sandboxed environment.
 
 ### Docker Image Structure
 
-The Dockerfile builds a comprehensive development environment with:
-- Multiple language runtimes: Python 3, Node.js LTS, Rust (stable), Go 1.23.2, Ruby, Java 21, PHP
-- Package managers for each ecosystem: pip/uv/poetry/pipenv, npm/yarn, cargo, go mod, gem/bundler, maven/gradle, composer
+The Dockerfile builds a minimal development environment with:
+- Python 3 runtime with pip and virtualenv
+- Node.js LTS with npm and yarn (required for Claude Code)
 - Database clients: PostgreSQL, MySQL, SQLite, Redis (clients only, no servers)
-- Build tools: build-essential, git, ripgrep, and language-specific compilers
+- Build tools: build-essential, git, and common C/C++ libraries (libssl-dev, libffi-dev)
 - Claude Code installed globally via npm as the entrypoint
+
+**Additional languages**: Users can install other language runtimes as needed using `sudo apt install` (e.g., `golang-go`, `rustc`, `openjdk-21-jdk`, `ruby`, `php-cli`)
 
 **Security model**: The container runs as unprivileged user `claudito` (UID 1000) with sudo access. The wrapper script applies security restrictions via Docker flags (--cap-drop=ALL with selective cap-add).
 
@@ -64,15 +66,17 @@ docker buildx build --platform linux/amd64,linux/arm64 -t micahflee/claudito:lat
 # Run container with shell override
 docker run --rm -it micahflee/claudito:latest bash
 
-# Then test tools:
+# Then test core tools:
 python3 --version
 node --version
-rustc --version
-go version
-ruby --version
-java --version
-php --version
 claude --version
+psql --version
+mysql --version
+
+# Install additional languages as needed:
+sudo apt install golang-go
+sudo apt install rustc cargo
+sudo apt install openjdk-21-jdk
 ```
 
 ### GitHub Actions
@@ -90,14 +94,11 @@ Required secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
 
 **Layer ordering for caching**: The Dockerfile orders installations from least to most frequently changing:
 1. System packages and core tools
-2. Language runtimes (pinned versions where needed)
+2. Python and Node.js runtimes (stable versions)
 3. Claude Code (changes frequently, hence daily rebuilds)
 4. System upgrades (final layer before user creation)
 
-**Multi-arch considerations**: When adding architecture-specific downloads, use:
-```bash
-ARCH=$(dpkg --print-architecture)  # Returns "amd64" or "arm64"
-```
+**Design philosophy**: The image includes only Python and Node.js by default. Users can install additional languages on-demand via `sudo apt install`, keeping the base image small and fast to pull.
 
 ### Updating the claudito Script
 
@@ -124,6 +125,7 @@ docker buildx build --platform linux/amd64,linux/arm64 -t test .
 ## Notes
 
 - The daily cron build ensures users get the latest `@anthropic-ai/claude-code` even without code changes
-- Image size is ~2GB due to comprehensive tooling (acceptable per requirements)
-- Container runs as non-root user for security but has passwordless sudo
+- Image size is ~800MB-1GB thanks to minimal language runtime approach
+- Container runs as non-root user for security but has passwordless sudo for installing additional tools
 - The wrapper always pulls the latest image before running (line 78 of claudito script)
+- Users can install additional language runtimes (Go, Rust, Java, Ruby, PHP) as needed via apt

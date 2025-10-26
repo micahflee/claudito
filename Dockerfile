@@ -45,12 +45,8 @@ RUN apt-get update && \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python package managers
-RUN pip3 install --no-cache-dir --break-system-packages \
-    uv \
-    pipenv \
-    poetry \
-    virtualenv
+# Install virtualenv for Python virtual environments
+RUN pip3 install --no-cache-dir --break-system-packages virtualenv
 
 # Install Node.js (LTS version via NodeSource)
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
@@ -58,74 +54,14 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Yarn
+# Install Yarn (small utility, useful for Node.js projects)
 RUN npm install -g yarn
 
-# Install Rust via rustup
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH
-
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile default && \
-    chmod -R a+w $RUSTUP_HOME $CARGO_HOME && \
-    rustup component add rustfmt clippy
-
-# Install Go (architecture-aware)
-ENV GOLANG_VERSION=1.23.2
-ENV GOPATH=/go \
-    PATH=/usr/local/go/bin:/go/bin:$PATH
-
-RUN ARCH=$(dpkg --print-architecture) && \
-    if [ "$ARCH" = "amd64" ]; then GOARCH="amd64"; elif [ "$ARCH" = "arm64" ]; then GOARCH="arm64"; fi && \
-    curl -LO https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz && \
-    tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz && \
-    rm go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz && \
-    mkdir -p /go/bin
-
-# Install Ruby and development tools
-RUN apt-get update && \
-    apt-get install -y \
-    ruby \
-    ruby-dev \
-    libssl-dev \
-    libreadline-dev \
-    zlib1g-dev \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install Bundler
-RUN gem install bundler
-
-# Install Java
-RUN apt-get update && \
-    apt-get install -y \
-    openjdk-21-jdk \
-    maven \
-    gradle \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install PHP and Composer
-RUN apt-get update && \
-    apt-get install -y \
-    php-cli \
-    php-curl \
-    php-mbstring \
-    php-xml \
-    php-zip \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Install C/C++ development libraries
+# Install common C/C++ development libraries (needed by many Python packages)
 RUN apt-get update && \
     apt-get install -y \
     libssl-dev \
     libffi-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libcurl4-openssl-dev \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -160,8 +96,8 @@ RUN if id 1000 2>/dev/null; then userdel -r $(id -un 1000); fi && \
     echo "claudito ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Make sure shared directories are accessible by claudito user
-RUN mkdir -p /go/bin && \
-    chown -R claudito:claudito /go /usr/local/cargo /usr/local/rustup
+RUN mkdir -p /home/claudito && \
+    chown -R claudito:claudito /home/claudito
 
 # Copy entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
