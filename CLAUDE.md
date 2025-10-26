@@ -25,11 +25,11 @@ The Dockerfile builds a comprehensive development environment with:
 
 ### Volume Mounts
 
-The `claudito` script mounts two directories:
-1. **Working directory**: `$(pwd)` → `/src` in container (read-write)
-2. **Claudito config**: `~/.claudito/config` → `/home/claudito/.config/@anthropic-ai/claude-code` (to persist authentication)
+The `claudito` script uses:
+1. **Working directory**: `$(pwd)` → `/src` in container (read-write bind mount)
+2. **Claudito config**: Docker named volume `claudito-config` → `/home/claudito/.config/@anthropic-ai/claude-code` (to persist authentication)
 
-The config directory is dedicated to claudito and separate from any host Claude Code installation. This simplifies authentication and avoids platform-specific path complexities.
+Using a named volume for configuration ensures reliable persistence across all platforms (especially Docker Desktop) and avoids file synchronization issues with bind mounts.
 
 ### Multi-Architecture Support
 

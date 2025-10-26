@@ -49,4 +49,4 @@ claudito --version
 
 Claude Code requires authentication with your Anthropic API key. On first run, Claude Code will guide you through the authentication process.
 
-Your credentials are stored in `~/.claudito/config` on your host machine and automatically mounted into the container. This is separate from any Claude Code installation you may have on your host system.
+Your credentials are stored in a Docker named volume (`claudito-config`) that persists across container runs. This is completely separate from any Claude Code installation you may have on your host system.

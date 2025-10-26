@@ -9,9 +9,7 @@ set -e
 IMAGE_NAME="micahflee/claudito:latest"
 WORK_DIR="/src"
 CONTAINER_CONFIG_DIR="/home/claudito/.config/@anthropic-ai/claude-code"
-
-# Use dedicated config directory for claudito
-CONFIG_DIR="$HOME/.claudito/config"
+VOLUME_NAME="claudito-config"
 
 # Colors for output
 RED='\033[0;31m'
@@ -46,13 +44,6 @@ if ! docker info &> /dev/null; then
     exit 1
 fi
 
-# Check if config directory exists, create if not
-if [ ! -d "$CONFIG_DIR" ]; then
-    warn "Claudito config directory not found at $CONFIG_DIR"
-    warn "Creating directory... You will need to authenticate on first run"
-    mkdir -p "$CONFIG_DIR"
-fi
-
 # Pull latest image
 info "Pulling latest $IMAGE_NAME image..."
 docker pull "$IMAGE_NAME"
@@ -73,7 +64,7 @@ exec docker run \
     --cap-add=DAC_OVERRIDE \
     --cap-add=NET_BIND_SERVICE \
     -v "$CURRENT_DIR:$WORK_DIR" \
-    -v "$CONFIG_DIR:$CONTAINER_CONFIG_DIR" \
+    -v "$VOLUME_NAME:$CONTAINER_CONFIG_DIR" \
     -w "$WORK_DIR" \
     "$IMAGE_NAME" \
     "$@"
