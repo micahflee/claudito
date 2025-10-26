@@ -27,12 +27,9 @@ The Dockerfile builds a comprehensive development environment with:
 
 The `claudito` script mounts two directories:
 1. **Working directory**: `$(pwd)` → `/src` in container (read-write)
-2. **Claude Code config**: Platform-specific path → `/home/claudito/.config/@anthropic-ai/claude-code` (to persist authentication)
+2. **Claudito config**: `~/.claudito/config` → `/home/claudito/.config/@anthropic-ai/claude-code` (to persist authentication)
 
-Platform-specific config paths:
-- macOS: `~/Library/Application Support/@anthropic-ai/claude-code/`
-- Linux: `~/.config/@anthropic-ai/claude-code/`
-- Windows: `%APPDATA%\@anthropic-ai\claude-code\`
+The config directory is dedicated to claudito and separate from any host Claude Code installation. This simplifies authentication and avoids platform-specific path complexities.
 
 ### Multi-Architecture Support
 
@@ -105,9 +102,8 @@ ARCH=$(dpkg --print-architecture)  # Returns "amd64" or "arm64"
 ### Updating the claudito Script
 
 The script uses `exec` to replace itself with the Docker process, ensuring signals pass through correctly. Any changes should preserve:
-- Platform detection logic (lines 14-34)
-- Docker health checks (lines 56-67)
-- Security options (lines 88-94)
+- Docker health checks
+- Security options (--cap-drop=ALL with selective cap-add)
 
 ### Testing Multi-Architecture Builds
 

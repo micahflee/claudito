@@ -49,10 +49,4 @@ claudito --version
 
 Claude Code requires authentication with your Anthropic API key. On first run, Claude Code will guide you through the authentication process.
 
-Your credentials are stored on your host machine and automatically mounted into the container:
-
-- **macOS**: `~/Library/Application Support/@anthropic-ai/claude-code/`
-- **Linux**: `~/.config/@anthropic-ai/claude-code/`
-- **Windows**: `%APPDATA%\@anthropic-ai\claude-code\`
-
-The claudito script automatically detects your platform and uses the correct path.
+Your credentials are stored in `~/.claudito/config` on your host machine and automatically mounted into the container. This is separate from any Claude Code installation you may have on your host system.

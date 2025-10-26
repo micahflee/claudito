@@ -10,28 +10,8 @@ IMAGE_NAME="micahflee/claudito:latest"
 WORK_DIR="/src"
 CONTAINER_CONFIG_DIR="/home/claudito/.config/@anthropic-ai/claude-code"
 
-# Detect platform and set config directory
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    CONFIG_DIR="$HOME/Library/Application Support/@anthropic-ai/claude-code"
-elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-    # Windows (Git Bash, Cygwin, or WSL)
-    if [ -n "$APPDATA" ]; then
-        # Native Windows path
-        CONFIG_DIR="$APPDATA/@anthropic-ai/claude-code"
-    else
-        # WSL - try Windows user directory
-        WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
-        if [ -n "$WIN_USER" ]; then
-            CONFIG_DIR="/mnt/c/Users/$WIN_USER/AppData/Roaming/@anthropic-ai/claude-code"
-        else
-            CONFIG_DIR="$HOME/.config/@anthropic-ai/claude-code"
-        fi
-    fi
-else
-    # Linux and others
-    CONFIG_DIR="$HOME/.config/@anthropic-ai/claude-code"
-fi
+# Use dedicated config directory for claudito
+CONFIG_DIR="$HOME/.claudito/config"
 
 # Colors for output
 RED='\033[0;31m'
@@ -68,8 +48,8 @@ fi
 
 # Check if config directory exists, create if not
 if [ ! -d "$CONFIG_DIR" ]; then
-    warn "Claude Code config directory not found at $CONFIG_DIR"
-    warn "Creating directory... You may need to authenticate Claude Code on first run"
+    warn "Claudito config directory not found at $CONFIG_DIR"
+    warn "Creating directory... You will need to authenticate on first run"
     mkdir -p "$CONFIG_DIR"
 fi
 
