@@ -1,6 +1,6 @@
 # Claudito
 
-Docker container for running [Claude Code](https://docs.claude.com/claude-code) in a sandbox, so it can't access your data outside of your working directory.
+This project is a docker container for running [Claude Code](https://docs.claude.com/claude-code) in a sandbox, so it can't access your data outside of your working directory, your SSH keys, or anything else.
 
 (Claudito, as in Little Claude, because it's Claude playing in a sandbox... get it?)
 

@@ -6,7 +6,7 @@ on:
       - main
   schedule:
     # Run daily at 2 AM UTC to get latest Claude Code version
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
     # Allow manual triggers
 
@@ -60,13 +60,3 @@ jobs:
             type=gha
             type=registry,ref=micahflee/claudito:latest
           cache-to: type=gha,mode=max
-
-      - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: micahflee/claudito
-          short-description: "Docker container for running Claude Code in a sandboxed environment"
-          readme-filepath: ./README.md
-        continue-on-error: true
