@@ -171,11 +171,15 @@ RUN if id 1000 2>/dev/null; then userdel -r $(id -un 1000); fi && \
 RUN mkdir -p /go/bin && \
     chown -R claudito:claudito /go /usr/local/cargo /usr/local/rustup
 
+# Copy entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Switch to unprivileged user
 USER claudito
 
 # Set working directory
 WORKDIR /src
 
-# Set entrypoint to claude
-ENTRYPOINT ["claude"]
+# Set entrypoint to our wrapper script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
