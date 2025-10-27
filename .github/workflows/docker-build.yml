@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   schedule:
     # Run daily at 2 AM UTC to get latest Claude Code version
     - cron: "0 2 * * *"
@@ -41,8 +43,12 @@ jobs:
             TAGS="$TAGS,$DATE_TAG"
           fi
 
-          # Add git SHA tag for push builds
-          if [ "${{ github.event_name }}" = "push" ]; then
+          # Add version tag for version tag pushes (e.g., v0.1 -> 0.1)
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION_TAG="micahflee/claudito:${GITHUB_REF#refs/tags/v}"
+            TAGS="$TAGS,$VERSION_TAG"
+          # Add git SHA tag for regular branch push builds
+          elif [ "${{ github.event_name }}" = "push" ]; then
             SHA_TAG="micahflee/claudito:${GITHUB_SHA::7}"
             TAGS="$TAGS,$SHA_TAG"
           fi

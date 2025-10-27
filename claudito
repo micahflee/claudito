@@ -6,6 +6,7 @@
 set -e
 
 # Configuration
+VERSION="0.1"
 IMAGE_NAME="micahflee/claudito:latest"
 WORK_DIR="/src"
 CONTAINER_HOME_DIR="/home/claudito"
@@ -29,6 +30,15 @@ warn() {
 error() {
     echo -e "${RED}[claudito]${NC} $1" >&2
 }
+
+# Handle version flag
+if [[ "$1" == "--version" ]] || [[ "$1" == "-v" ]]; then
+    echo "claudito version $VERSION"
+    exit 0
+fi
+
+# Display version
+info "Claudito version $VERSION"
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
