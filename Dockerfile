@@ -78,9 +78,6 @@ RUN apt-get update && \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code globally
-RUN npm install -g @anthropic-ai/claude-code
-
 # Install sudo
 RUN apt-get update && \
     apt-get install -y sudo && \
@@ -106,6 +103,16 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Switch to unprivileged user
 USER claudito
+
+# Configure npm to use user-local directory for global packages
+RUN mkdir -p /home/claudito/.npm-global && \
+    npm config set prefix '/home/claudito/.npm-global'
+
+# Update PATH to include npm global bin directory
+ENV PATH="/home/claudito/.npm-global/bin:${PATH}"
+
+# Install Claude Code as claudito user (enables auto-updates)
+RUN npm install -g @anthropic-ai/claude-code
 
 # Set working directory
 WORKDIR /src

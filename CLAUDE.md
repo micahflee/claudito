@@ -19,7 +19,7 @@ The Dockerfile builds a minimal development environment with:
 - Node.js LTS with npm and yarn (required for Claude Code)
 - Database clients: PostgreSQL, MySQL, SQLite, Redis (clients only, no servers)
 - Build tools: build-essential, git, and common C/C++ libraries (libssl-dev, libffi-dev)
-- Claude Code installed globally via npm as the entrypoint
+- Claude Code installed as the `claudito` user (enables auto-updates without sudo)
 
 **Additional languages**: Users can install other language runtimes as needed using `sudo apt install` (e.g., `golang-go`, `rustc`, `openjdk-21-jdk`, `ruby`, `php-cli`)
 
@@ -124,6 +124,8 @@ docker buildx build --platform linux/amd64,linux/arm64 -t test .
 
 ## Notes
 
+- Claude Code is installed as the `claudito` user (not root) to enable auto-updates without permission errors
+- npm is configured with a user-local prefix (`~/.npm-global`) for the claudito user
 - The daily cron build ensures users get the latest `@anthropic-ai/claude-code` even without code changes
 - Image size is ~800MB-1GB thanks to minimal language runtime approach
 - Container runs as non-root user for security but has passwordless sudo for installing additional tools
