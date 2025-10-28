@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push to Docker Hub
 
 on:
   push:
@@ -55,7 +55,7 @@ jobs:
 
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
-      - name: Build and push Docker image
+      - name: Build and push to Docker Hub
         uses: docker/build-push-action@v5
         with:
           context: .

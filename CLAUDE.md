@@ -19,7 +19,7 @@ The Dockerfile builds a minimal development environment with:
 - Node.js LTS with npm and yarn (required for Claude Code)
 - Database clients: PostgreSQL, MySQL, SQLite, Redis (clients only, no servers)
 - Build tools: build-essential, git, and common C/C++ libraries (libssl-dev, libffi-dev)
-- Claude Code installed globally via npm as the entrypoint
+- Claude Code installed as the `claudito` user (enables auto-updates without sudo)
 
 **Additional languages**: Users can install other language runtimes as needed using `sudo apt install` (e.g., `golang-go`, `rustc`, `openjdk-21-jdk`, `ruby`, `php-cli`)
 
@@ -81,12 +81,23 @@ sudo apt install openjdk-21-jdk
 
 ### GitHub Actions
 
-Workflow triggers:
-- Push to `main` branch (tags: `latest`, `<git-sha>`)
-- Daily cron at 2 AM UTC (tags: `latest`, `YYYY-MM-DD`)
-- Manual via workflow_dispatch
+The project uses two separate workflows for clarity:
 
-Required secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
+**1. `docker-build-pr.yml` - Build Docker Image (PR)**
+- Triggers on pull requests to `main`
+- Builds multi-arch image (amd64, arm64) for validation
+- Does NOT push to Docker Hub
+- No secrets required
+
+**2. `docker-build.yml` - Build and Push to Docker Hub**
+- Triggers on:
+  - Push to `main` branch (tags: `latest`, `<git-sha>`)
+  - Daily cron at 2 AM UTC (tags: `latest`, `YYYY-MM-DD`)
+  - Version tags `v*` (tags: `latest`, `<version>`)
+  - Manual via workflow_dispatch
+- Builds multi-arch image (amd64, arm64)
+- Pushes to Docker Hub
+- Required secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
 
 ## Development Guidelines
 
@@ -118,12 +129,15 @@ docker buildx build --platform linux/amd64,linux/arm64 -t test .
 
 - `Dockerfile` - Image definition with all development tools
 - `claudito` - Wrapper script for running the container
-- `.github/workflows/docker-build.yml` - CI/CD pipeline
+- `.github/workflows/docker-build-pr.yml` - CI pipeline for PR validation (build only)
+- `.github/workflows/docker-build.yml` - CI/CD pipeline for Docker Hub (build and push)
 - `REQUIREMENTS.md` - Comprehensive project requirements and specifications
 - `README.md` - User-facing documentation
 
 ## Notes
 
+- Claude Code is installed as the `claudito` user (not root) to enable auto-updates without permission errors
+- npm is configured with a user-local prefix (`~/.npm-global`) for the claudito user
 - The daily cron build ensures users get the latest `@anthropic-ai/claude-code` even without code changes
 - Image size is ~800MB-1GB thanks to minimal language runtime approach
 - Container runs as non-root user for security but has passwordless sudo for installing additional tools
