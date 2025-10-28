@@ -81,13 +81,23 @@ sudo apt install openjdk-21-jdk
 
 ### GitHub Actions
 
-Workflow triggers:
-- **Pull requests to `main`**: Builds image for testing (does NOT push to Docker Hub)
-- **Push to `main` branch**: Builds and pushes (tags: `latest`, `<git-sha>`)
-- **Daily cron at 2 AM UTC**: Builds and pushes (tags: `latest`, `YYYY-MM-DD`)
-- **Manual via workflow_dispatch**: Builds and pushes based on trigger context
+The project uses two separate workflows for clarity:
 
-Required secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
+**1. `docker-build-pr.yml` - Build Docker Image (PR)**
+- Triggers on pull requests to `main`
+- Builds multi-arch image (amd64, arm64) for validation
+- Does NOT push to Docker Hub
+- No secrets required
+
+**2. `docker-build.yml` - Build and Push to Docker Hub**
+- Triggers on:
+  - Push to `main` branch (tags: `latest`, `<git-sha>`)
+  - Daily cron at 2 AM UTC (tags: `latest`, `YYYY-MM-DD`)
+  - Version tags `v*` (tags: `latest`, `<version>`)
+  - Manual via workflow_dispatch
+- Builds multi-arch image (amd64, arm64)
+- Pushes to Docker Hub
+- Required secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
 
 ## Development Guidelines
 
@@ -119,7 +129,8 @@ docker buildx build --platform linux/amd64,linux/arm64 -t test .
 
 - `Dockerfile` - Image definition with all development tools
 - `claudito` - Wrapper script for running the container
-- `.github/workflows/docker-build.yml` - CI/CD pipeline
+- `.github/workflows/docker-build-pr.yml` - CI pipeline for PR validation (build only)
+- `.github/workflows/docker-build.yml` - CI/CD pipeline for Docker Hub (build and push)
 - `REQUIREMENTS.md` - Comprehensive project requirements and specifications
 - `README.md` - User-facing documentation
 

@@ -1,0 +1,32 @@
+name: Build Docker Image (PR)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: micahflee/claudito:pr-${{ github.event.pull_request.number }}
+          cache-from: |
+            type=gha
+            type=registry,ref=micahflee/claudito:latest
+          cache-to: type=gha,mode=max
