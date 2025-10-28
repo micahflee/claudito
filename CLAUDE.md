@@ -82,9 +82,10 @@ sudo apt install openjdk-21-jdk
 ### GitHub Actions
 
 Workflow triggers:
-- Push to `main` branch (tags: `latest`, `<git-sha>`)
-- Daily cron at 2 AM UTC (tags: `latest`, `YYYY-MM-DD`)
-- Manual via workflow_dispatch
+- **Pull requests to `main`**: Builds image for testing (does NOT push to Docker Hub)
+- **Push to `main` branch**: Builds and pushes (tags: `latest`, `<git-sha>`)
+- **Daily cron at 2 AM UTC**: Builds and pushes (tags: `latest`, `YYYY-MM-DD`)
+- **Manual via workflow_dispatch**: Builds and pushes based on trigger context
 
 Required secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
 
