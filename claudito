@@ -31,11 +31,52 @@ error() {
     echo -e "${RED}[claudito]${NC} $1" >&2
 }
 
-# Handle version flag
-if [[ "$1" == "--version" ]] || [[ "$1" == "-v" ]]; then
-    echo "claudito version $VERSION"
-    exit 0
-fi
+# Parse claudito-specific arguments
+ADDITIONAL_VOLUMES=()
+CLAUDE_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --version|-v)
+            echo "claudito version $VERSION"
+            exit 0
+            ;;
+        --volume|-V)
+            if [[ -z "$2" ]]; then
+                error "Error: --volume requires an argument (format: HOST_PATH:CONTAINER_PATH or HOST_PATH:CONTAINER_PATH:OPTIONS)"
+                exit 1
+            fi
+            ADDITIONAL_VOLUMES+=("-v" "$2")
+            shift 2
+            ;;
+        --help|-h)
+            echo "Claudito - Docker wrapper for Claude Code"
+            echo ""
+            echo "Usage: claudito [OPTIONS] [CLAUDE_ARGS...]"
+            echo ""
+            echo "Claudito Options:"
+            echo "  -h, --help              Show this help message"
+            echo "  -v, --version           Show claudito version"
+            echo "  -V, --volume HOST:CONTAINER[:OPTIONS]"
+            echo "                          Mount additional volume (can be used multiple times)"
+            echo "                          Example: --volume /host/data:/container/data:ro"
+            echo ""
+            echo "All other arguments are passed to Claude Code in the container."
+            exit 0
+            ;;
+        --)
+            # Stop parsing claudito options
+            shift
+            CLAUDE_ARGS+=("$@")
+            break
+            ;;
+        *)
+            # Pass all remaining arguments to Claude
+            CLAUDE_ARGS+=("$@")
+            break
+            ;;
+    esac
+done
 
 # Display version
 info "Claudito version $VERSION"
@@ -75,6 +116,7 @@ exec docker run \
     --cap-add=NET_BIND_SERVICE \
     -v "$CURRENT_DIR:$WORK_DIR" \
     -v "$VOLUME_NAME:$CONTAINER_HOME_DIR" \
+    "${ADDITIONAL_VOLUMES[@]}" \
     -w "$WORK_DIR" \
     "$IMAGE_NAME" \
-    "$@"
+    "${CLAUDE_ARGS[@]}"

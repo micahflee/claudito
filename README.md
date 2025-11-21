@@ -45,6 +45,26 @@ claudito --help
 claudito --version
 ```
 
+### Mounting Additional Volumes
+
+By default, claudito mounts your current working directory to `/src` in the container. If you need to access additional directories, you can mount them using the `--volume` (or `-V`) flag:
+
+```bash
+# Mount a single additional directory
+claudito --volume /path/on/host:/path/in/container
+
+# Mount multiple directories
+claudito --volume /data:/data --volume /config:/etc/myapp
+
+# Mount with read-only access
+claudito --volume /readonly/data:/data:ro
+
+# Combine with Claude Code arguments
+claudito --volume /extra/data:/data -- --help
+```
+
+**Note:** The `--volume` flag is a claudito option and must come before any Claude Code arguments. Use `--` to explicitly separate claudito options from Claude Code arguments if needed.
+
 ## Authentication
 
 Claude Code requires authentication with your Anthropic API key. On first run, Claude Code will guide you through the authentication process.
